@@ -1,5 +1,5 @@
 ! ###################################################################
-! Copyright (c) 2015-2024, Marc De Graef Research Group/Carnegie Mellon University
+! Copyright (c) 2015-2025, Marc De Graef Research Group/Carnegie Mellon University
 ! All rights reserved.
 !
 ! Redistribution and use in source and binary forms, with or without modification, are
@@ -319,7 +319,7 @@ real(kind=sgl)                                      :: euler(3)
 integer(kind=irg)                                   :: indx
 integer(kind=irg)                                   :: correctsize
 logical                                             :: f_exists, init, ROIselected
-character(1000)                                     :: charline
+character(160)                                      :: charline
 
 integer(kind=irg)                                   :: ipar(10)
 
@@ -679,12 +679,15 @@ if (trim(tkdnl%maskfile).ne.'undefined') then
     inquire(file=trim(fname), exist=f_exists)
     if (f_exists.eqv..TRUE.) then
       mask = 0.0
+      ! open(unit=dataunit,file=trim(fname),status='old',form='unformatted')
       open(unit=dataunit,file=trim(fname),status='old',form='formatted')
       do jj=biny,1,-1
+        ! read(dataunit,"(A)") charline
         read(dataunit,"(A)") charline
         do ii=1,binx
           if (charline(ii:ii).eq.'1') mask(ii,jj) = 1.0
         end do
+        write (*,*) jj, charline
       end do
       close(unit=dataunit,status='keep')
     else
@@ -714,7 +717,7 @@ end do
 ! an average dot product map to be stored in the h5ebsd output file
 !=====================================================
 call h5open_EMsoft(hdferr)
-call PreProcessTKDPatterns(tkdnl%nthreads, .FALSE., tkdnl, binx, biny, masklin, correctsize, totnumexpt, &
+call PreProcessTKDPatterns(tkdnl%nthreads, .FALSE., tkdnl, binx, biny, mask, correctsize, totnumexpt, &
                            exptIQ=exptIQ)
 call h5close_EMsoft(hdferr)
 
